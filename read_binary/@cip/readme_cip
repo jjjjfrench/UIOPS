@@ -1,0 +1,282 @@
+@cip is implimented as a matlab class.  It contains the following methods:
+
+obj = cip(cipdir [,unpdir]): construct a cip class.  
+  cipdir - the path to the directory that is seached for Imagefile_
+  unpdir - the path to the directory to store the unpacked files in.
+    The default it is the current directory.
+
+unpack: Unpack the data if it if it doesn't exist.  
+  Uses the parallel processing toolbox.  The unpacked
+  file names are set in the constructor: cip.
+
+cipunp(rawcip,unpcip,lastbyte): Unpack a cip file.
+    rawcip   - the name of the packed cip file
+    unpcip   - the name of the file of unpacked data to create
+    lastbyte - the value of the last byte of the previous file if there are
+      multiple cip files
+  The data are packed as four 2 bit values per each byte.  The data can be
+  read back in with:
+    fid  = fopen(unpfile,'ieee-be');
+    data = fread(fid,'ubit2=>uint8');
+
+[idx,secofday,nslice,pcount] = cipindex(data): create an index of the data read
+    in from an unpacked cip file.
+  data     - 2 bit data read in as unsigned byte values as above
+  idx      - the start of the image data for each particle
+  secofday - the second of the day of each particle, actually of each 12 hours
+  nslice   - the number of slices in each particle
+  pcount   - the count number encoded in each particle
+
+write2d(filebase): write a RAF/OAP file, merging it with PMS data 
+    (2D-C and 2D-P).  The images are written as 1 bit values.
+  filebase - the base of the file name.
+    [filebase '_pms.2d'] is looked for in the current direcory for PMS images
+    The data are written to [filebase '_cip.2d']
+  For the CIP data, the id is set to 'C5'.  The timer word is a 64 bit value
+    with the upper 24 bits alternating 1's and 0's (0xAAAAAA).  The lower
+    40 bits are the number of 12 microsec clicks from an arbitrary point in
+    time.  I use UTC midnight.  I believe NCAR uses the time since the probe
+    is turned on.
+
+These changes were made to nctdms and to the PMS 2D files.
+1) The file in now named YYYYMMDD_pms.2d (was YYYYMMDD.2d)
+2) The file is compatible with the latest definition from NCAR.
+ a) The XML starts with <OAP ...> rather than <PMS>.
+ b) The true air speed is encoded in m/s rather than m/s * 255/125
+3) The <Source> is eliminated.
+4) The following fields are added:
+  <Institution>University of Wyoming Atmospheric Science</Institution>
+  <FormatURL>http://www.eol.ucar.edu/raf/Software/OAPfiles.html</FormatURL>
+
+The function cip2oap is not part of the cip class.  It creates the 
+appropriate file names and makes the appropriate calls to the @cip class 
+to convert packed CIP images to a RAF/OAP file.
+
+There are a number of 1 Hz values from the CIP probe written into a CSV file.  
+The true air speed values from the CSV file are written to the 2D file.
+Would it be useful to add any of these one second values to the raw netCDF 
+files?
+
+Time
+Over_rej_count
+Bin_1
+Bin_2
+Bin_3
+Bin_4
+Bin_5
+Bin_6
+Bin_7
+Bin_8
+Bin_9
+Bin_10
+Bin_11
+Bin_12
+Bin_13
+Bin_14
+Bin_15
+Bin_16
+Bin_17
+Bin_18
+Bin_19
+Bin_20
+Bin_21
+Bin_22
+Bin_23
+Bin_24
+Bin_25
+Bin_26
+Bin_27
+Bin_28
+Bin_29
+Bin_30
+Bin_31
+Bin_32
+Bin_33
+Bin_34
+Bin_35
+Bin_36
+Bin_37
+Bin_38
+Bin_39
+Bin_40
+Bin_41
+Bin_42
+Bin_43
+Bin_44
+Bin_45
+Bin_46
+Bin_47
+Bin_48
+Bin_49
+Bin_50
+Bin_51
+Bin_52
+Bin_53
+Bin_54
+Bin_55
+Bin_56
+Bin_57
+Bin_58
+Bin_59
+Bin_60
+Bin_61
+Bin_62
+DOF_rej_counts
+End_rej_counts
+Laser_Temp(C)
+Spare
+Diode_1_(V)
+Diode_32_(V)
+Diode_64_(V)
+Press_Temp(C)
+Dynamic_Press(mBar)
+Static_Press(mBar)
+8_Volts(V)
+V_ref_1.24(V)
+Board_Temp(C)
+Laser_Current(mA)
+LWC(V)
+LWC_Slave(V)
+RH%
+Ambient_Temp(C)
+Particle_counter
+Seconds
+Milliseconds
+Hours
+Minutes
+Host_Sync_Counter
+Reset_Flag
+Instant_Illum_1
+Instant_Illum_2
+Instant_Illum_3
+Instant_Illum_4
+Instant_Illum_5
+Instant_Illum_6
+Instant_Illum_7
+Instant_Illum_8
+Instant_Illum_9
+Instant_Illum_10
+Instant_Illum_11
+Instant_Illum_12
+Instant_Illum_13
+Instant_Illum_14
+Instant_Illum_15
+Instant_Illum_16
+Instant_Illum_17
+Instant_Illum_18
+Instant_Illum_19
+Instant_Illum_20
+Instant_Illum_21
+Instant_Illum_22
+Instant_Illum_23
+Instant_Illum_24
+Instant_Illum_25
+Instant_Illum_26
+Instant_Illum_27
+Instant_Illum_28
+Instant_Illum_29
+Instant_Illum_30
+Instant_Illum_31
+Instant_Illum_32
+Instant_Illum_33
+Instant_Illum_34
+Instant_Illum_35
+Instant_Illum_36
+Instant_Illum_37
+Instant_Illum_38
+Instant_Illum_39
+Instant_Illum_40
+Instant_Illum_41
+Instant_Illum_42
+Instant_Illum_43
+Instant_Illum_44
+Instant_Illum_45
+Instant_Illum_46
+Instant_Illum_47
+Instant_Illum_48
+Instant_Illum_49
+Instant_Illum_50
+Instant_Illum_51
+Instant_Illum_52
+Instant_Illum_53
+Instant_Illum_54
+Instant_Illum_55
+Instant_Illum_56
+Instant_Illum_57
+Instant_Illum_58
+Instant_Illum_59
+Instant_Illum_60
+Instant_Illum_61
+Instant_Illum_62
+Instant_Illum_63
+Instant_Illum_64
+Dark_Current_1
+Dark_Current_2
+Dark_Current_3
+Dark_Current_4
+Dark_Current_5
+Dark_Current_6
+Dark_Current_7
+Dark_Current_8
+Dark_Current_9
+Dark_Current_10
+Dark_Current_11
+Dark_Current_12
+Dark_Current_13
+Dark_Current_14
+Dark_Current_15
+Dark_Current_16
+Dark_Current_17
+Dark_Current_18
+Dark_Current_19
+Dark_Current_20
+Dark_Current_21
+Dark_Current_22
+Dark_Current_23
+Dark_Current_24
+Dark_Current_25
+Dark_Current_26
+Dark_Current_27
+Dark_Current_28
+Dark_Current_29
+Dark_Current_30
+Dark_Current_31
+Dark_Current_32
+Dark_Current_33
+Dark_Current_34
+Dark_Current_35
+Dark_Current_36
+Dark_Current_37
+Dark_Current_38
+Dark_Current_39
+Dark_Current_40
+Dark_Current_41
+Dark_Current_42
+Dark_Current_43
+Dark_Current_44
+Dark_Current_45
+Dark_Current_46
+Dark_Current_47
+Dark_Current_48
+Dark_Current_49
+Dark_Current_50
+Dark_Current_51
+Dark_Current_52
+Dark_Current_53
+Dark_Current_54
+Dark_Current_55
+Dark_Current_56
+Dark_Current_57
+Dark_Current_58
+Dark_Current_59
+Dark_Current_60
+Dark_Current_61
+Dark_Current_62
+Dark_Current_63
+Dark_Current_64
+True Air Speed
+CIP_GS_Numb
+CIP_GS_LWC
+CIP_GS_MVD
+CIP_GS_ED
+Status

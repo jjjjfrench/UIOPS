@@ -5,26 +5,30 @@ function read_binary_SPEC(infilename,outfilename)
 %% Follow the SPEC manual 
 %%  by Will Wu, 08/01/2014
 %%
+%% Changed file naming conventions for UW use. Updated to use NETCDF4.
+%%  by Adam Majewski, 10/31/2016
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 starpos = find(infilename == '*',1,'last');
+slashpos = find(infilename == '/',1,'last');
 
-if ~isempty(starpos)
+if ~isempty(starpos) || outfilename == '1'
     files = dir(infilename);
     filenums = length(files);
-    filedir = infilename(1:starpos-1);
+    filedir = infilename(1:slashpos);
 else
     filenums = 1;
 end
 
 for i = 1:filenums
-    if filenums > 1
+    if filenums > 1 || ~isempty(starpos)
         infilename = [filedir,files(i).name];
     end
     
     if outfilename == '1'
-        slashpos = find(infilename == '.',1,'last');
-        outfilename = ['DIMG.',infilename(1:slashpos-1),'.cdf'];
+        %slashpos = find(infilename == '.',1,'last');
+        outfilename = [filedir,'DIMG.',files(i).name];
     end
     
     outfilename1=[outfilename, '.H.cdf'];
@@ -32,7 +36,11 @@ for i = 1:filenums
     
     fid=fopen(infilename,'r','l');
 
-    f = netcdf.create(outfilename1, 'clobber');
+    fid=fopen(infilename,'r','l');
+    cmode = netcdf.getConstant('NETCDF4');
+    cmode = bitor(cmode,netcdf.getConstant('CLOBBER'));
+    f = netcdf.create(outfilename1,cmode);
+    %f = netcdf.create(outfilename1, 'clobber');
     
     dimid0 = netcdf.defDim(f,'time',netcdf.getConstant('NC_UNLIMITED'));
     dimid1 = netcdf.defDim(f,'ImgRowlen',8);
