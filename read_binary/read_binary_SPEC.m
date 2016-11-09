@@ -56,8 +56,9 @@ for i = 1:filenums
     varid7 = netcdf.defVar(f,'wkday','byte',dimid0);
     varid8 = netcdf.defVar(f,'data','int',[dimid1 dimid2 dimid0]);
     netcdf.endDef(f)
-        
-    f1 = netcdf.create(outfilename2, 'clobber');
+     
+    f1 = netcd.fcreate(outfilename2, cmode);
+    %f1 = netcdf.create(outfilename2, 'clobber');
     
     dimid01 = netcdf.defDim(f1,'time',netcdf.getConstant('NC_UNLIMITED'));
     dimid11 = netcdf.defDim(f1,'ImgRowlen',8);
