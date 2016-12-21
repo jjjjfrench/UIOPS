@@ -1,4 +1,4 @@
-function runImgProc(infilename, pType, nChucks)
+function runImgProc(infilename, pType, nChucks, projectname, threshold)
 
 starpos = find(infilename == '*',1,'last');
 slashpos = find(infilename == '/',1,'last');
@@ -34,7 +34,7 @@ for i = 1:filenums
         perpos = find(infilename == '.',1,'last');
         outfilename = [infilename(1:perpos-1),'_',num2str(iii),'.proc.cdf'];
         %outfile = ['./HVPSFAST/proc2.TEST_debug.HVPS' num2str(numb(iii)) '.cdf'];			% Output image autoanalysis file
-        imgProc_sm(infilename,outfilename, pType, iii, nEvery);  % See imgprocdm documentation for more information
+        imgProc_sm(infilename,outfilename, pType, iii, nEvery, projectname, threshold);  % See imgprocdm documentation for more information
     end
 
     delete(gcp)
