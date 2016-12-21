@@ -1,4 +1,4 @@
-function imgProc_sm(infile, outfile, probename, n, nEvery, projectname)
+function imgProc_sm(infile, outfile, probename, n, nEvery, projectname, threshold)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 %  This function is the image processing part of OAP processing using 
 %  distributed memory parallisation. The function use one simple interface
@@ -13,6 +13,8 @@ function imgProc_sm(infile, outfile, probename, n, nEvery, projectname)
 %                 total frame number 
 %    projectname: The name of project so that you can write the specific
 %                 code for you data
+%    threshold:   %Shaded threshold for CIP-Grayscale (defaults to 50 if
+%    not provided)
 %
 %  Note other important variables used in the program
 %    handles:  a structure to store information. It is convinient to use a
@@ -39,6 +41,9 @@ function imgProc_sm(infile, outfile, probename, n, nEvery, projectname)
 %    * Updated by Will Wu, 07/11/2016
 %          New function name with the option to turn CGAL on and off for
 %          speed
+%    * Updated by Adam Majewski, 12/06/2016
+%          New probe type, CIP Grayscale (CIPG), and required conditional processing
+%          steps for it
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
 
 %% Setting probe information according to probe type
@@ -80,6 +85,16 @@ switch probename
         handles.current_image = 1;
         probetype=1;
 
+    case 'CIPG'
+        boundary=3*ones(1,64);
+        boundarytime=3;
+
+        ds = 0.025;			     % Size of diode in millimeters
+        handles.diodesize = ds;
+        handles.diodenum  = 64;  % Diode number
+        handles.current_image = 1;
+        probetype=3;
+        
     case 'PIP'
         boundary=[170, 170, 170, 170, 170, 170, 170, 170];
         boundarytime=NaN;
@@ -110,7 +125,9 @@ switch probename
         handles.current_image = 1;
         probetype=2;
 end
-
+if(~exist('threshold','var'))
+	threshold = 50;
+end
 diodenum = handles.diodenum;
 byteperslice = diodenum/8;  
 handles.disagree = 0;
@@ -218,6 +235,8 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
     
     if probetype==0
         temp = netcdf.getVar(handles.f,varid,[0, 0, i-1], [4,1024,1]);
+    elseif(probetype == 3)
+        temp = netcdf.getVar(handles.f,varid,[0, 0, i-1], [64,512,1]);
     else
         temp = netcdf.getVar(handles.f,varid,[0, 0, i-1], [8,1700,1]);
     end
@@ -234,10 +253,10 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
            if start ==0
                if 1 == probetype 
                    start = 2;
-               elseif 0 == probetype
-                   start = 2;
-               else
+               elseif 2 == probetype
                    start = 1;
+               else %%DMT probes (CIP, PIP) and CIPG
+                   start = 2;
                end
            end
             
@@ -251,7 +270,11 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                    end
                end 
                 
-                header_loc = j+1;
+                if(probetype == 3)
+                   header_loc = j+2; %Previously j=2+2 if encountered on first iteration
+                else
+                   header_loc = j+1;
+                end
                 w=w+1;
                 %% Create binary image according to probe type
                    
@@ -266,6 +289,24 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                     ind_matrix(1:j-start,:) = 65535 - data(start:j-1,:); % I used 1 to indicate the illuminated doides for HVPS
                     c=[dec2bin(ind_matrix(:,1),16), dec2bin(ind_matrix(:,2),16),dec2bin(ind_matrix(:,3),16),dec2bin(ind_matrix(:,4),16), ...
                     dec2bin(ind_matrix(:,5),16), dec2bin(ind_matrix(:,6),16),dec2bin(ind_matrix(:,7),16),dec2bin(ind_matrix(:,8),16)];
+                elseif probetype==3
+                    %% Set thresholding
+                    
+                    ind_matrix = data(start:j-1,:)';
+					if(threshold == 50)
+						ind_matrix(ind_matrix < 2) = 0;
+						ind_matrix(ind_matrix > 1) = 1;
+                    elseif(threshold == 75)
+					    ind_matrix(ind_matrix > 0) = 1;
+					else
+					    ind_matrix(ind_matrix < 3) = 0;
+						ind_matrix(ind_matrix > 2) = 1;
+					end	
+                    
+                    c = num2str(ind_matrix, '%1d');
+                    
+                    
+                    c = c';
                 end
                 
                 % Just to test if there is bad images, usually 0 area images
@@ -278,8 +319,10 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                 
                 images.position(kk,:) = [start, j-1];
                 parent_rec_num(kk)=i;
-                particle_num(kk) = mod(kk,66536); %hex2dec([dec2hex(data(start-1,7)),dec2hex(data(start-1,8))]);
-                
+                %particle_num(kk) = mod(kk,66536); %hex2dec([dec2hex(data(start-1,7)),dec2hex(data(start-1,8))]);
+                if(probetype < 3)
+                   particle_num(kk) = mod(kk,66536); %hex2dec([dec2hex(data(start-1,7)),dec2hex(data(start-1,8))]);
+                end
                 %  Get the particle time 
                 if probetype==0 
                     bin_convert = [dec2bin(data(header_loc,2),8),dec2bin(data(header_loc,3),8),dec2bin(data(header_loc,4),8)];
@@ -368,6 +411,34 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                     else
                         images.int_arrival(kk) = 0;
                     end
+                elseif probetype==3
+                     %slice[127:120] 8-bit slice count
+                     %slice[119:115] 5-bit hours
+                     %slice[114:109] 6-bit minutes
+                     %slice[108:103] 6-bit seconds
+                     %slice[102:93] 10-bit milliseconds
+                     %slice[92:83] 10-bit microseconds
+                     %slice[82:80] 3-eights of microseconds (125 ns)
+                     %slice[79:64] 16-bit particle count
+                     %slice[63:56] 8-bit true airspeed (in meters per second)
+                     %slice[55:0] 56-bit 0?s
+                      
+                     part_hour(kk) = data(header_loc,60)*8+data(header_loc,59)*2+bitshift(data(header_loc,58),-1)+12;
+                     part_min(kk) = bitget(data(header_loc,58),1)*32+data(header_loc,57)*8+data(header_loc,56)*2+bitshift(data(header_loc,55),-1);
+                     part_sec(kk) = bitget(data(header_loc,55),1)*32+data(header_loc,54)*8+data(header_loc,53)*2+bitshift(data(header_loc,52),-1);
+                     part_mil(kk) = bitget(data(header_loc,52),1)*512+data(header_loc,51)*128+data(header_loc,50)*32+data(header_loc,49)*8+data(header_loc,48)*2+bitshift(data(header_loc,47),-1);
+                     part_micro(kk) = bitget(data(header_loc,47),1)*512+data(header_loc,46)*128+data(header_loc,45)*32+data(header_loc,44)*8+data(header_loc,43)*2+bitshift(data(header_loc,42),-1);
+                     part_micro(kk) = part_micro(kk) + 3/8*(bitget(data(header_loc,42),1)*4+data(header_loc,41));
+                     fours = power(4,0:7);
+                     particle_num(kk) = sum(data(header_loc,33:40).*fours);
+                     fours = power(4,0:3);
+                     part_tas = sum(data(header_loc, 29:32).*fours);
+                     time_in_seconds(kk) = part_hour(kk) * 3600 + part_min(kk) * 60 + part_sec(kk) + part_mil(kk)/1000 + part_micro(kk)/1e6;
+                     if kk > 1
+                        images.int_arrival(kk) = time_in_seconds(kk) - time_in_seconds(kk-1);
+                     else
+                        images.int_arrival(kk) = time_in_seconds(kk);
+                     end
                 end
                 
                 temptimeinhhmmss = part_hour(kk) * 10000 + part_min(kk) * 100 + part_sec(kk);
