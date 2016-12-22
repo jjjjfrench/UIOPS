@@ -421,7 +421,7 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                      %slice[82:80] 3-eights of microseconds (125 ns)
                      %slice[79:64] 16-bit particle count
                      %slice[63:56] 8-bit true airspeed (in meters per second)
-                     %slice[55:0] 56-bit 0?s
+                     %slice[55:0] 56-bit 0's
                       
                      part_hour(kk) = data(header_loc,60)*8+data(header_loc,59)*2+bitshift(data(header_loc,58),-1)+12;
                      part_min(kk) = bitget(data(header_loc,58),1)*32+data(header_loc,57)*8+data(header_loc,56)*2+bitshift(data(header_loc,55),-1);
@@ -429,6 +429,12 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                      part_mil(kk) = bitget(data(header_loc,52),1)*512+data(header_loc,51)*128+data(header_loc,50)*32+data(header_loc,49)*8+data(header_loc,48)*2+bitshift(data(header_loc,47),-1);
                      part_micro(kk) = bitget(data(header_loc,47),1)*512+data(header_loc,46)*128+data(header_loc,45)*32+data(header_loc,44)*8+data(header_loc,43)*2+bitshift(data(header_loc,42),-1);
                      part_micro(kk) = part_micro(kk) + 3/8*(bitget(data(header_loc,42),1)*4+data(header_loc,41));
+                     
+                     fours = power(4,0:2);
+                     particle_sliceCount(kk)= 2*sum(data(header_loc,60:62).*fours)+floor(data(header_loc,63)/2);%bitand(data(header_loc,1),127);
+                     particle_DOF(kk)=mod(data(header_loc,63),2);
+                     particle_partNum(kk)=0;
+                     
                      fours = power(4,0:7);
                      particle_num(kk) = sum(data(header_loc,33:40).*fours);
                      fours = power(4,0:3);
