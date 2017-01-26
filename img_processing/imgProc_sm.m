@@ -594,5 +594,6 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
 end
 warning on all
 
+netcdf.close(handles.f);
 netcdf.close(f);
 end
