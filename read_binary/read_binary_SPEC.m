@@ -33,14 +33,12 @@ for i = 1:filenums
     
     outfilename1=[outfilename, '.H.cdf'];
     outfilename2=[outfilename, '.V.cdf'];
-    
-    fid=fopen(infilename,'r','l');
 
     fid=fopen(infilename,'r','l');
-    cmode = netcdf.getConstant('NETCDF4');
-    cmode = bitor(cmode,netcdf.getConstant('CLOBBER'));
-    f = netcdf.create(outfilename1,cmode);
-    %f = netcdf.create(outfilename1, 'clobber');
+    %cmode = netcdf.getConstant('NETCDF4');
+    %cmode = bitor(cmode,netcdf.getConstant('CLOBBER'));
+    %f = netcdf.create(outfilename1,cmode);
+    f = netcdf.create(outfilename1, 'clobber');
     
     dimid0 = netcdf.defDim(f,'time',netcdf.getConstant('NC_UNLIMITED'));
     dimid1 = netcdf.defDim(f,'ImgRowlen',8);
@@ -57,8 +55,8 @@ for i = 1:filenums
     varid8 = netcdf.defVar(f,'data','int',[dimid1 dimid2 dimid0]);
     netcdf.endDef(f)
      
-    f1 = netcd.fcreate(outfilename2, cmode);
-    %f1 = netcdf.create(outfilename2, 'clobber');
+    %f1 = netcdf.create(outfilename2, cmode);
+    f1 = netcdf.create(outfilename2, 'clobber');
     
     dimid01 = netcdf.defDim(f1,'time',netcdf.getConstant('NC_UNLIMITED'));
     dimid11 = netcdf.defDim(f1,'ImgRowlen',8);
@@ -161,12 +159,12 @@ for i = 1:filenums
         %toc
     end
     
-    fclose(fid);
+    
     netcdf.close(f);  
     netcdf.close(f1);      
 end
 
-
+fclose(fid);
 end
 
 function [year,month, wkday,day, hour, minute, second, millisec, data, discard]=readRecord(fid)
