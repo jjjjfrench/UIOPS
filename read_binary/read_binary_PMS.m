@@ -6,25 +6,23 @@ function read_binary_PMS(infilename,outfilename)
 % correct
 
 starpos = find(infilename == '*',1,'last');
-
+slashpos = find(infilename == '/',1,'last');
+filedir = infilename(1:slashpos);
+files = dir(infilename);
+filenums = length(files);
 if ~isempty(starpos)
-    files = dir(infilename);
-    filenums = length(files);
-    filedir = infilename(1:starpos-1);
-else
-    filenums = 1;
+    basefilename = infilename(1:starpos-1);
 end
 
 for i = 1:filenums
     if filenums > 1
-        infilename = [filedir,files(i).name];
+        infilename = [basefilename,files(i).name];
     end
     
     if outfilename == '1'
-        slashpos = find(infilename == '.',1,'last');
-        outfilename  = ['DIMG.',infilename(1:slashpos-1),'.2dc.cdf']; %(slashpos+1:end)
-        outfilename1 = ['DIMG.',infilename(1:slashpos-1),'.f2dc.cdf'];
-        outfilename2 = ['DIMG.',infilename(1:slashpos-1),'.2dp.cdf'];
+        outfilename  = [filedir,'DIMG.',files(i).name,'.2dc.cdf']; %(slashpos+1:end)
+        outfilename1 = [filedir,'DIMG.',files(i).name,'.f2dc.cdf'];
+        outfilename2 = [filedir,'DIMG.',files(i).name,'.2dp.cdf'];
     end
     
     fid=fopen(infilename,'r','b');
@@ -101,7 +99,7 @@ for i = 1:filenums
     end
     
     % while feof(fid)==0 & kk <= 3000
-    while feof(fid)==0 & endfile == 0
+    while feof(fid)==0 && endfile == 0
 
              
         probetype=fread(fid,2,'uchar');
@@ -119,7 +117,7 @@ for i = 1:filenums
 
         %disp(probetype')
 
-        if ( (probetype(1)==67) & (probetype(2)==49) ) % 67 % 80 % 2DC
+        if ( (probetype(1)==67) && (probetype(2)==49) ) % 67 % 80 % 2DC
             
             netcdf.putVar ( f, varid0, kk-1, 1, year );
             netcdf.putVar ( f, varid1, kk-1, 1, month );
@@ -139,7 +137,7 @@ for i = 1:filenums
                 datestr(now)
             end
             clear decomp dd k2 b1 b2
-        elseif ( (probetype(1)==67) & (probetype(2)==54) ) % 67 % 80 % F2DC
+        elseif ( (probetype(1)==67) && (probetype(2)==54) ) % 67 % 80 % F2DC
             
             netcdf.putVar ( f, varid02, kk2-1, 1, year );
             netcdf.putVar ( f, varid12, kk2-1, 1, month );
@@ -160,7 +158,7 @@ for i = 1:filenums
             end
             clear decomp dd k2 b1 b2
             
-        elseif ( (probetype(1)==67) & (probetype(2)==52) ) % 67 % 80 % F2DC
+        elseif ( (probetype(1)==67) && (probetype(2)==52) ) % 67 % 80 % F2DC
             
             netcdf.putVar ( f1, varid02, kk2-1, 1, year );
             netcdf.putVar ( f1, varid12, kk2-1, 1, month );

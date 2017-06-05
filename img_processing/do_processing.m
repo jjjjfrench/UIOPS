@@ -22,8 +22,8 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
     files = dir(basefilename);
     filenums = length(files);
     filedir = basefilename(1:slashpos);
-    logname = [filedir,'log.txt'];
-    logid = fopen(logname,'w');
+    logname = [filedir,'log.txt']
+    logid = fopen(logname,'w')
     fprintf(logid,'started: %s\r\n',datestr(now));
     
     switch pType
@@ -33,8 +33,18 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
 
         case '2DP'
 %pms
-%needed for our processing
-
+            path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
+            fprintf(logid,'read_binary: %s\r\n',datestr(now));
+            read_binary_PMS(basefilename,'1');
+            
+            path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
+            fprintf(logid,'imgProc: %s\r\n',datestr(now));
+            files = dir([filedir,'DIMG.*']);
+            for i=1:length(files)
+                perpos = find(files(i).name == '.', 1, 'last');
+                runImgProc([filedir,files(i).name],pType,nEvery,project,threshold);
+                mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
+            end
         case 'CIP'
             %read_binary_DMT
             
@@ -54,7 +64,6 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
             
             fprintf(logid,'mergeNetcdf: %s\r\n',datestr(now));
             mergeNetcdf([cipdir,'cip_',ciptime,'/',ciptime,'_cip*.proc.cdf']);
-            fprintf(logid,'finished: %s\r\n',datestr(now));
             
         case 'PIP'
 %dmt
@@ -77,8 +86,9 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
                 fprintf(logid,'mergeNetcdf V: %s\r\n',datestr(now));
                 mergeNetcdf([filedir,'DIMG.',files(i).name,'.V*.proc.cdf']);
             end
-            fprintf(logid,'finished: %s\r\n',datestr(now));
+            
     end
+    fprintf(logid,'finished: %s\r\n',datestr(now));
     path(p);
     fclose(logid);
 end
