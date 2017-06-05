@@ -45,7 +45,7 @@ switch probe
         for i=1:filenums
             inFile = [filedir,files(i).name];
             outFile = [filedir,'SD.',files(i).name];
-            sizeDistNew(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
+            sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
         end
         if (filenums>1)
             catDist([filedir,'SD.cat.DIMG.base',date,'*.2DS.V.proc.cdf']); 
@@ -58,7 +58,7 @@ switch probe
         for i=1:filenums
             inFile = [filedir,files(i).name];
             outFile = [filedir,'SD.',files(i).name];
-            sizeDistNew(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
+            sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
         end
         if (filenums>1)
             catDist([filedir,'SD.cat.DIMG.base',date,'*.2DS.H.proc.cdf']);
@@ -71,7 +71,7 @@ switch probe
         for i=1:filenums
             inFile = [filedir,files(i).name];
             outFile = [filedir,'SD.',files(i).name];
-            sizeDistNew(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
+            sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
         end
         if (filenums > 1)
             catDist([filedir,'SD.cat.20',date,'*_cip.proc.cdf']);
