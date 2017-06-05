@@ -39,11 +39,10 @@ end
 % Calculate the DOF
 lambda = 680 * 1e-6;             % mm,laser wavelength
 if probetype==2
-    DOF =20.52*radius.^2*1000; 
+    DOF = 20.52*radius.^2*1000;
 else
-    DOF = 6*radius.^2/lambda;        % Using 
+    DOF = 6*radius.^2/lambda;        % Using
 end
-    
 DOF(DOF > armdst) = armdst;
-
+%DOF = armdst;
 sa = DOF .* EAWri;
