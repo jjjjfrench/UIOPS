@@ -55,7 +55,7 @@
 %    ddate:         Date to be analyzed, string (YYYYMMDD)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function sizeDistNew(infile, outfile, tas, timehhmmss, probename, d_choice, SAmethod, Pres, Temp, projectname, ddate, varargin)
+function sizeDist(infile, outfile, tas, timehhmmss, probename, d_choice, SAmethod, Pres, Temp, projectname, ddate, varargin)
 iCreateBad = 0; % Default not to output bad particles PSDs and other info
 iCreateAspectRatio = 0; % Default not to process aspect ratio info
 iSaveIntArrSV = 0; % Default not to save inter-arrival and sample volume information
