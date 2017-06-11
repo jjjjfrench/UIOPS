@@ -67,14 +67,14 @@ switch probename
 
     case '2DP'
         boundary=[255 255 255 255];
-        boundarytime=85;
+        boundarytime=0;
 
         ds = 0.200;			     % Size of diode in millimeters
         handles.diodesize = ds;  
         handles.diodenum  = 32;  % Diode number
         handles.current_image = 1;
         probetype=0;
-
+        clockfactor = 2.; %Correction in clock cycles in timer word for 2DP probe and King Air data system in conjunction
     case 'CIP'
         boundary=[170, 170, 170, 170, 170, 170, 170, 170];
         boundarytime=NaN;
@@ -127,6 +127,9 @@ switch probename
 end
 if(~exist('threshold','var'))
 	threshold = 50;
+end
+if(~exist('clockfactor'))
+    clockfactor = 1.;
 end
 diodenum = handles.diodenum;
 byteperslice = diodenum/8;  
@@ -255,8 +258,8 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                    start = 2;
                elseif 2 == probetype
                    start = 1;
-               else %%DMT probes (CIP, PIP) and CIPG
-                   start = 2;
+               else
+                   start = 1;
                end
            end
             
@@ -279,7 +282,7 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                 %% Create binary image according to probe type
                    
                 if probetype==0    
-                    ind_matrix(1:j-start-1,:) = data(start+1:j-1,:);  % 2DC has 3 slices between particles (sync word timing word and end of particle words)
+                    ind_matrix(1:j-start-1,:) = data(start+1:j-1,:);  % 2DC has 3 slices between particles (sync word, timing word, and end of particle words)
                     c=[dec2bin(ind_matrix(:,1),8),dec2bin(ind_matrix(:,2),8),dec2bin(ind_matrix(:,3),8),dec2bin(ind_matrix(:,4),8)];
                 elseif probetype==1
                     ind_matrix(1:j-start,:) = data(start:j-1,:);
@@ -326,11 +329,13 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                 %  Get the particle time 
                 if probetype==0 
                     bin_convert = [dec2bin(data(header_loc,2),8),dec2bin(data(header_loc,3),8),dec2bin(data(header_loc,4),8)];
-                    part_time = bin2dec(bin_convert);       % Interarrival time in tas clock cycles
+                    part_time = bin2dec(bin_convert)*clockfactor;       % Interarrival time in tas clock cycles -- needs to be multiplied by 2 for the King Air 2DP probe
                     tas2d = netcdf.getVar(handles.f,netcdf.inqVarID(handles.f,'tas'),i-1, 1);
                     part_time = part_time/tas2d*handles.diodesize/(10^3);                    
                     time_in_seconds(kk) = part_time;
-
+                    particle_sliceCount(kk) = size(ind_matrix,1); %Needs to be changed
+                    particle_DOF(kk) = -1;
+                    
                     images.int_arrival(kk) = part_time;
                     
                     if(firstpart == 1)
@@ -352,6 +357,8 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                         part_sec(kk) = start_second;
                         part_mil(kk) = start_msec;
                         part_micro(kk) = 0;
+                        
+                        particle_partNum(kk) = 1;
                     else
                         frac_time = part_time - floor(part_time);
                         frac_time = frac_time * 1000;
@@ -360,6 +367,8 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                         part_sec(kk) = part_sec(kk-1) + floor(part_time);
                         part_min(kk) = part_min(kk-1);
                         part_hour(kk) = part_hour(kk-1);
+                        
+                        particle_partNum(kk) = particle_partNum(kk-1) + 1;
                     end
                     
                     part_sec(part_mil >= 1000) = part_sec(part_mil >= 1000) + 1;
@@ -464,7 +473,7 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                 diode_stats = diode_stats + sum(c=='1',1);
                 csum = sum(c=='1',1);
 
-                images.holroyd_habit(kk) = holroyd(handles,c);
+                images.holroyd_habit(kk) = holroyd(handles,c,probename);
                 
                 %% Determine if the particle is rejected or not
                 %  Calculate the Particle Length, Width, Area, Auto Reject 
@@ -517,8 +526,12 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                 else
                     images.percent_shadow(kk) = 0;
                 end
-
-                start = j + 2;
+                
+                if probetype == 3
+                    start = j + 3;
+                else
+                    start = j + 2;
+                end
                 kk = kk + 1;
                 clear c ind_matrix
            %end
