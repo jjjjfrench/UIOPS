@@ -25,7 +25,9 @@ for i = 1:filenums
     numb=11:10+nChucks;  % Start from 11 to avoid sigle numbers in file name for later convinience
 
     % Assign the number of CPUs for this program
-    parpool(8)        % Assign n CPUs to process
+    if (nChucks > 1)
+        parpool(8)% Assign n CPUs to process
+    end
 
     % Choose the start and end of chucks to be processed. Remember you can
     % split the chucks into different programs to process, since matlabpool can
@@ -37,7 +39,9 @@ for i = 1:filenums
         imgProc_sm(infilename,outfilename, pType, iii, nEvery, projectname, threshold);  % See imgprocdm documentation for more information
     end
 
-    delete(gcp)
+    if (nChucks > 1)
+        delete(gcp)
+    end
 end
 end
 
