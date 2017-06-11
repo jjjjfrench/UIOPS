@@ -17,6 +17,6 @@ obj = cip(cipdatapath,outdatapath)
 unpack(obj)
 
 cip_obj_to_netcdf(obj,[outdatapath,'/',outfilename])
-
+path(p);
 
 end

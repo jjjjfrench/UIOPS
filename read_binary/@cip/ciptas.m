@@ -48,7 +48,7 @@ darr=double(cell2mat(ymdh));
 hh=darr(4);
 darr(4:6) = 0;
 date = datenum(darr);
-if hh==0 && sod(1) > 86400;
+if hh==0 && sod(1) > 86400
   fprintf('Deleting a day from the time stamps, sod(1)=%f\n',sod(1));
   sod = sod - 86400;
 end
