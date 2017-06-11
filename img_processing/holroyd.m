@@ -4,7 +4,12 @@
 %    image_buffer - n x photodiodes/8 raw image buffer without timestamps
 % outputs:
 %    holroyd_habit - habit code as listed below
-function [holroyd_habit] = holroyd(handles, image_buffer)
+% 5/15/2017 -- it was discovered that certain threshold values were only
+% appropriate for probes of 25 micron resolution so changes were made to
+% accomodate probes of 10 micron resolution, documented below --Jacobson
+% 6/6/2017 -- changes generalized and and edited for future expandability
+% for other probes                                             -Majewski
+function [holroyd_habit] = holroyd(handles, image_buffer, probename)
 
 %/***************************************************************/%
 %/*	Return code                                                */
@@ -26,10 +31,24 @@ function [holroyd_habit] = holroyd(handles, image_buffer)
 %/*	'd' = dendrite                                             */
 %/*	                                                           */
 %/***************************************************************/
-
-
+switch probename
+    case '2DS'
+        probe_resolution = .010;
+        ol_d_length = 160.;
+        a_d_length = 400.;
+        ag_d_length = 160.;
+        gh_d_length = 80.;
+        id_x_length = 17.;
+    otherwise %This is actually the settings for the CIP probe, but as they were already hardcoded prior, they are the default option until more probes are added
+        probe_resolution = .025;
+        ol_d_length = 64.;
+        a_d_length = 160.;
+        ag_d_length = 64.;
+        gh_d_length = 32.;
+        id_x_length = 7.;
+        
+end
 	image_size = size(image_buffer);
-    probe_resolution = .025;
 	n_slices  = image_size(1);
 	
 
@@ -48,22 +67,22 @@ function [holroyd_habit] = holroyd(handles, image_buffer)
 			elseif (area < 25)
 				holroyd_habit = 't';
 				return;
-			elseif  (r2_correlation >= .4) | ( (d_length < 64) & ( (x_length >= 4*y_length) |  (y_length >= 4*x_length)))
+			elseif  (r2_correlation >= .4) || ( (d_length < ol_d_length) && ( (x_length >= 4*y_length) ||  (y_length >= 4*x_length)))
 				
-				if ((a_angle> 30.0) & (a_angle < 60.0))
+				if ((a_angle> 30.0) && (a_angle < 60.0))
 					holroyd_habit = 'o';
 					return;
 				else
 					holroyd_habit = 'l';
 					return;
 				end
-			elseif ( (d_length * probe_resolution > 6.4 ) |	(d_length > 160.0)) 
+			elseif ( (d_length * probe_resolution > 6.4 ) ||	(d_length > a_d_length)) 
 				holroyd_habit = 'a';
 				return;
 			elseif (S_ratio >= .7)
 				holroyd_habit = 'g';
 				return;
-            elseif (d_length >= 64)
+            elseif (d_length >= ag_d_length)
 				if (F_fine_detail <= 13)
 					holroyd_habit = 'g';
 					return;
@@ -75,14 +94,14 @@ function [holroyd_habit] = holroyd(handles, image_buffer)
 				holroyd_habit = 's';
 				return;
 			elseif (F_fine_detail < 10.0)
-				if (d_length >= 32)
+				if (d_length >= gh_d_length)
 					holroyd_habit = 'g';
 					return;
 				else
 					holroyd_habit = 'h';
 					return;
 				end
-			elseif ((F_fine_detail < 16.0) | (x_length <= 7.0))
+			elseif ((F_fine_detail < 16.0) || (x_length <= id_x_length))
 				holroyd_habit = 'i';
 				return;
 			else
