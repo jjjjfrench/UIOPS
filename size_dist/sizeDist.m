@@ -1540,7 +1540,7 @@ end
 % up to twice that of the number of particles the probe counted.
 % This next if-statement contains code to find and change these instances to 1, resolving 
 % the far exaggerated concentrations that resulted otherwise.
-if probetype==1
+if probetype==1 
 	TotalPCerrIx = find(time_interval199 > 1);
 	time_interval200 = time_interval199;
 	time_interval200(TotalPCerrIx) = 1;

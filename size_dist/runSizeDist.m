@@ -12,20 +12,20 @@ switch project
         ncfile = ['/kingair_data/snowie17/work/20',date,'.c1.nc'];
         projdir = '/kingair_data/snowie17/';
         main_nc = netcdf.open(ncfile);
-        timesec = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'time'));
-        tas = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'tas'));
+        timesec = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'time'), 'double');
+        tas = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'tas'),'double');
         netcdf.close(main_nc);
         days = floor(timesec/86400);
         hours = floor(mod(timesec,86400)/3600);
         minutes = floor(mod(timesec,3600)/60);
         seconds = mod(timesec,60);
-        timehhmmss = int32(seconds+minutes*100+hours*10000);
+        timehhmmss = double(seconds+minutes*100+hours*10000); 
     case 'PACMICE'
         ncfile = ['/kingair_data/pacmice16/work/20',date,'.c1.nc'];
         projdir = '/kingair_data/pacmice16/';
         main_nc = netcdf.open(ncfile);
-        timehhmmss = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'TIME'));
-        tas = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'tas'));
+        timehhmmss = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'TIME'), 'double');
+        tas = netcdf.getVar(main_nc, netcdf.inqVarID(main_nc, 'tas'),'double');
         netcdf.close(main_nc);
 end
 
@@ -84,9 +84,15 @@ switch probe
             catDist([filedir,'SD.cat.20',date,'*_cip.proc.cdf']);
         end
     case '2DP'
-
+	filedir = [projdir,'2DP/20',date,'/'];
+	inFile = [filedir,'DIMG.',date,'.2dp_1.proc.cdf'];
+	outFile = [fildir,'SD.DIMG.',date,'.2dp_1.proc.cdf'];
+	sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
     case '2DC'
-
+	filedir = [projdir,'2DP/20',date,'/'];
+	inFile = [filedir,'DIMG.',date,'.2dc_1.proc.cdf'];
+	outFile = [filedir,'SD.DIMG.',date,'.2dc_1.proc.cdf'];
+	sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
 end
 
 end

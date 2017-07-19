@@ -334,7 +334,7 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                     part_time = part_time/tas2d*handles.diodesize/(10^3);                    
                     time_in_seconds(kk) = part_time;
                     particle_sliceCount(kk) = size(ind_matrix,1); %Needs to be changed
-                    particle_DOF(kk) = -1;
+                    particle_DOF(kk) = 0;
                     
                     images.int_arrival(kk) = part_time;
                     
