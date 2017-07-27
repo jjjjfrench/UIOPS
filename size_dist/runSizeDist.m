@@ -72,7 +72,7 @@ switch probe
         end
     case 'CIP'
         filedir = [projdir,'cip/20',date,'/cip_20',date,'/'];
-        files = dir([filedir,'cat.20',date,'*_cip.proc.cdf']);
+        files = dir([filedir,'cat.DIMG.20',date,'*_cip.proc.cdf']);
         filenums = length(files);
         
         for i=1:filenums
@@ -81,18 +81,18 @@ switch probe
             sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
         end
         if (filenums > 1)
-            catDist([filedir,'SD.cat.20',date,'*_cip.proc.cdf']);
+            catDist([filedir,'SD.cat.DIMG.20',date,'*_cip.proc.cdf']);
         end
     case '2DP'
-	filedir = [projdir,'2DP/20',date,'/'];
-	inFile = [filedir,'DIMG.',date,'.2dp_1.proc.cdf'];
-	outFile = [fildir,'SD.DIMG.',date,'.2dp_1.proc.cdf'];
-	sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
+        filedir = [projdir,'2DP/20',date,'/'];
+        inFile = [filedir,'DIMG.20',date,'.2d.2dp.proc.cdf'];
+        outFile = [filedir,'SD.DIMG.20',date,'.2d.2dp.proc.cdf'];
+        sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
     case '2DC'
-	filedir = [projdir,'2DP/20',date,'/'];
-	inFile = [filedir,'DIMG.',date,'.2dc_1.proc.cdf'];
-	outFile = [filedir,'SD.DIMG.',date,'.2dc_1.proc.cdf'];
-	sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
+        filedir = [projdir,'2DP/20',date,'/'];
+        inFile = [filedir,'DIMG.20',date,'.2d.2dc.proc.cdf'];
+        outFile = [filedir,'SD.DIMG.20',date,'.2d.2dc.proc.cdf'];
+        sizeDist(inFile,outFile,tas,floor(timehhmmss),probe,6,0,pres,temp1,project,['20',date]);
 end
 
 end
