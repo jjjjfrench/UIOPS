@@ -1,9 +1,27 @@
-fCDP = '/kingair_data/snowie17/processed/20170119a.c1.nc';
-f2DS_H = '/kingair_data/snowie17/2DS/20170119_1/SD.cat.DIMG.base170119.2DS.H.proc.cdf';
-f2DS_V = '/kingair_data/snowie17/2DS/20170119_1/SD.cat.DIMG.base170119.2DS.V.proc.cdf';
-fCIP = '/kingair_data/snowie17/cip/20170119a/cip_20170119a/SD.cat.20170119a_cip.proc.cdf';
-f2DP = '/kingair_data/snowie17/2DP/20170119_1/SD.DIMG.20170119a.2d.2dp_1.proc.cdf';
-f2DC = '/kingair_data/snowie17/2CP/20170119_1/SD.DIMG.20170119a.2d.2dc_1.proc.cdf';
+function finalSizeDist(date,project)
+%Generates final deliverable size distributions for field campaigns based
+%on the date and project. Passing a project that has no considerations in
+%the switch statement will revert to hardcoded values for in and out
+%filenames
+%
+switch project
+    case 'SNOWIE'
+        fCDP = ['/kingair_data/snowie17/processed/20',date,'.c1.nc'];
+        f2DS_H = ['/kingair_data/snowie17/2DS/20',date,'/SD.cat.DIMG.base',date,'.2DS.H.proc.cdf'];
+        f2DS_V = ['/kingair_data/snowie17/2DS/20',date,'/SD.cat.DIMG.base',date,'.2DS.V.proc.cdf'];
+        fCIP = ['/kingair_data/snowie17/cip/20',date,'/cip_20',date,'/SD.cat.DIMG.20',date,'_cip.proc.cdf'];
+        f2DP = ['/kingair_data/snowie17/2DP/20',date,'/SD.DIMG.20',date,'.2d.2dp.proc.cdf'];
+        f2DC = ['/kingair_data/snowie17/2CP/20',date,'/SD.DIMG.20',date,'.2d.2dc.proc.cdf'];
+        fout = ['/kingair_data/snowie17/2DS/20',date,'/20',date,'.SD.cdf'];
+    otherwise
+        fCDP = '/kingair_data/snowie17/processed/20170119b.c1.nc';
+        f2DS_H = '/kingair_data/snowie17/2DS/20170119_2/SD.cat.DIMG.base170119.2DS.H.proc.cdf';
+        f2DS_V = '/kingair_data/snowie17/2DS/20170119_2/SD.cat.DIMG.base170119.H.proc.cdf';
+        fCIP = '/kingair_data/snowie17/cip/20170119b/cip_20170119b/SD.cat.DIMG.20170119b_cip.proc.cdf';
+        f2DP = '/kingair_data/snowie17/2DP/20170119_2/SD.DIMG.20170119b.2d.2dp.proc.cdf';
+        f2DC = '/kingair_data/snowie17/2CP/20170119_2/SD.DIMG.20170119b.2d.2dc.proc.cdf';
+        fout = '/kingair_data/snowie17/2DS/20170119_2/20170119b.SD.cdf';
+end
 nc_CDP = netcdf.open(fCDP);
 tas = netcdf.getVar(nc_CDP, netcdf.inqVarID(nc_CDP, 'tas'));
 timesec = netcdf.getVar(nc_CDP, netcdf.inqVarID(nc_CDP, 'time'));
@@ -50,7 +68,7 @@ if (exist(f2DS_H))
 
 	netcdf.close(nc_2DS_H);
 else
-	nbins_2DS_H = 1;
+	nbins_2DS_H = 1
 
 	bin_min_2DS = zeros(nbins_2DS_H)*NaN;
 	bin_max_2DS = zeros(nbins_2DS_H)*NaN;
@@ -75,7 +93,7 @@ if (exist(f2DS_V))
 
 	netcdf.close(nc_2DS_V);
 else
-        nbins_2DS_V = length(bin_min_2DS);
+        nbins_2DS_V = length(bin_min_2DS)
     
         conc_2DS_V = zeros(nbins_2DS_V,length(tas))*NaN;
         conc_area_2DS_V = zeros(nareabins,nbins_2DS_V,length(tas))*NaN;
@@ -100,7 +118,7 @@ if(exist(fCIP))
 
 	netcdf.close(nc_CIP);
 else
-        nbins_CIP = 1;
+        nbins_CIP = 1
 
         bin_min_CIP = zeros(nbins_CIP)*NaN;
         bin_max_CIP = zeros(nbins_CIP)*NaN;
@@ -130,7 +148,7 @@ if(exist(f2DP))
 
 	netcdf.close(nc_2DP);
 else
-        nbins_2DP = 1;
+        nbins_2DP = 1
 
         bin_min_2DP = zeros(nbins_2DP)*NaN;
         bin_max_2DP = zeros(nbins_2DP)*NaN;
@@ -161,7 +179,7 @@ if(exist(f2DC))
 
         netcdf.close(nc_2DC);
 else
-        nbins_2DC = 1;
+        nbins_2DC = 1
 
         bin_min_2DC = zeros(nbins_2DC)*NaN;
         bin_max_2DC = zeros(nbins_2DC)*NaN;
@@ -175,12 +193,12 @@ else
 end
 
 
-mainf = netcdf.create('/kingair_data/snowie17/2DS/20170119_1/20170119a.SD.cdf', 'clobber');
+mainf = netcdf.create(fout, 'clobber');
 
 %Dimensions
 dimid0 = netcdf.defDim(mainf,'Time',length(timehhmmss));
 dimid1 = netcdf.defDim(mainf,'areabins',nareabins);
-dimid2 = netcdf.defDim(mainf,'bins_2DS',nbins_2DS);
+dimid2 = netcdf.defDim(mainf,'bins_2DS',nbins_2DS_H);
 dimid3 = netcdf.defDim(mainf,'bins_CIP',nbins_CIP);
 dimid4 = netcdf.defDim(mainf,'bins_2DP',nbins_2DP);
 dimid5 = netcdf.defDim(mainf,'bins_2DC',nbins_2DC);
@@ -192,7 +210,7 @@ varidG = netcdf.getConstant('GLOBAL');
 netcdf.putAtt(mainf,varidG,'creation_date',datestr(now));
 netcdf.putAtt(mainf,varidG,'git_ID',git_ID);
 netcdf.putAtt(mainf,varidG,'center_entire_criteria','centerin');
-netcdf.putAtt(mainf,varidG,'source_files',[f2DS,', ',fCIP,', ',f2DP,', ',f2DC,', ',fCDP]);
+netcdf.putAtt(mainf,varidG,'source_files',[f2DS_H,', ',f2DS_V,', ',fCIP,', ',f2DP,', ',f2DC,', ',fCDP]);
 netcdf.putAtt(mainf,varidG,'version','SNOWIE_1.0');
 netcdf.putAtt(mainf,varidG,'area_desc','10 area ratio bins of width .1 (0-1.0) from non circularity (0) to perfectly circle (1.0) aspect ratio');
 
@@ -464,7 +482,7 @@ netcdf.putVar ( mainf, varid32, bin_dD_2DC.*1.0e3 );
 netcdf.putVar ( mainf, varid33, double(conc_2DC.*1.0e-4) );
 netcdf.putVar ( mainf, varid34, double(conc_area_2DC.*1.0e-4) );
 netcdf.putVar ( mainf, varid35, double(total_conc_2DC.*1.0e-4) );
-netcdf.putVar ( mainf, varid36, double(rej_rat_2DS) );
+netcdf.putVar ( mainf, varid36, double(rej_rat_2DC) );
 
 %CDP
 netcdf.putVar ( mainf, varid37, bin_min_CDP );
@@ -475,3 +493,4 @@ netcdf.putVar ( mainf, varid41, double(conc_CDP) );
 netcdf.putVar ( mainf, varid42, double(total_conc_CDP) );
 
 netcdf.close(mainf);
+end
