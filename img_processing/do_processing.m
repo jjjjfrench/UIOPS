@@ -29,8 +29,22 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
     switch pType
         case '2DC'
 %pms
-%needed for our processing
-
+            path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
+            fprintf(logid,'read_binary: %s\r\n',datestr(now));
+            read_binary_PMS(basefilename,'1');
+            
+            path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
+            fprintf(logid,'imgProc: %s\r\n',datestr(now));
+            files = dir([filedir,'DIMG.*.2dc.cdf']);
+            for i=1:length(files)
+                perpos = find(files(i).name == '.', 1, 'last');
+                runImgProc([filedir,files(i).name],pType,nEvery,project,threshold);
+                if i > 1
+                    mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
+                else
+                    system(['mv ',files(i).name(1:perpos-1),'_1.proc',files(i).name(perpos:end),' ',files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)]);
+                end
+            end
         case '2DP'
 %pms
             path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
@@ -39,11 +53,15 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
             
             path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
             fprintf(logid,'imgProc: %s\r\n',datestr(now));
-            files = dir([filedir,'DIMG.*']);
+            files = dir([filedir,'DIMG.*.2dp.cdf']);
             for i=1:length(files)
                 perpos = find(files(i).name == '.', 1, 'last');
                 runImgProc([filedir,files(i).name],pType,nEvery,project,threshold);
-                mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
+                if i > 1
+                    mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
+                else
+                    system(['mv ',filedir,files(i).name(1:perpos-1),'_1.proc ',files(i).name(perpos:end),' ',filedir,files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)]);
+                end
             end
         case 'CIP'
             %read_binary_DMT
@@ -56,14 +74,17 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
             ciptime = basefilename(cipslash(1)+1:cipslash(2)-1); %Grabs the date from the directory name
             path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
             fprintf(logid,'raw_cip_to_cdf: %s\r\n',datestr(now));
-            raw_cip_to_cdf(basefilename,[cipdir,'cip_',ciptime],[ciptime,'_cip.cdf']);
+            raw_cip_to_cdf(basefilename,[cipdir,'cip_',ciptime],[ciptime,'.cip.cdf']);
+            cip_dimg = [cipdir,'cip_',ciptime,'/',ciptime,'_cip.cdf'];
+            system(['move ',cip_dimg,' ',cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf']);
+            cip_dimg = [cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf'];
             
             path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
             fprintf(logid,'imgProc: %s\r\n',datestr(now));
-            runImgProc([cipdir,'cip_',ciptime,'/',ciptime,'_cip.cdf'],pType,nEvery,project,threshold);
+            runImgProc(cip_dimg,pType,nEvery,project,threshold);
             
             fprintf(logid,'mergeNetcdf: %s\r\n',datestr(now));
-            mergeNetcdf([cipdir,'cip_',ciptime,'/',ciptime,'_cip*.proc.cdf']);
+            mergeNetcdf([cip_dimg(1:end-4),'*.proc',cip_dimg(end-3:end)]);
             
         case 'PIP'
 %dmt
