@@ -335,6 +335,7 @@ switch projectname
                 kk=[50.0   100.0   150.0   200.0   250.0   300.0   350.0   400.0   475.0   550.0   625.0 ...
                     700.0   800.0   900.0  1000.0  1200.0  1400.0  1600.0  1800.0  2000.0]*8/1000;
                 probetype=0;
+                tasMax = 125;
 				
 				% Interarrival threshold and reaccept max interarrival time are often flight-/instrument-specific
 				% **Values here may not be correct** 
@@ -514,8 +515,8 @@ end
 
 % Fix particle times if they span multiple days - Added by Joe Finlon -
 % 03/03/17
-image_time_hhmmssall(find(diff(image_time_hhmmssall)<0)+1:end)=...
-    image_time_hhmmssall(find(diff(image_time_hhmmssall)<0)+1:end) + 240000;
+%image_time_hhmmssall(find(diff(image_time_hhmmssall)<0)+1:end)=...
+%    image_time_hhmmssall(find(diff(image_time_hhmmssall)<0)+1:end) + 240000;
 
 % Find all indices (true/1) with a unique time in hhmmss - in other words, we're getting the particle index where each new
 % one-second period starts
@@ -660,14 +661,14 @@ for i=1:length(tas)
 				int_arr = diff(Time_in_seconds2);
 				
 				if start ~= start_all(end)
-					Time_in_seconds3 = netcdf.getVar(f,netcdf.inqVarID(f,'Time_in_seconds'),(start+count)-1,2);						
-					int_arr2 = diff(Time_in_seconds3); %Single value describing interarrival time of first particle of next 1-sec period
+					%Time_in_seconds3 = netcdf.getVar(f,netcdf.inqVarID(f,'Time_in_seconds'),(start+count)-1,2);						
+					%int_arr2 = diff(Time_in_seconds3); %Single value describing interarrival time of first particle of next 1-sec period
 				else
 					int_arr2 = [];
 				end
 			end
 			
-			int_arr2(int_arr2<0)=0;
+			%int_arr2(int_arr2<0)=0;
 			
 			if reaccptShatrs
 				if start ~= start_all(end)
@@ -1531,7 +1532,7 @@ elseif probetype==1
     time_interval199=(TotalPC1./TotalPC2)';
 
 elseif 0==probetype
-    time_interval200=1-time_interval72';
+    time_interval200=1-0.*time_interval72';
 end
 
 % Experimental - Use with care!
