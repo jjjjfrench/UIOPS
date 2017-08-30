@@ -51,8 +51,8 @@ for ii = 1:length(obj.cipfile)
   disp('Writing to the netCDF file');
 
 % CIP image data are on a 12 hour clock
-  if str2num(datestr(csvsod(1),'HH')); sod = sod + 12*3600; end
-  sod = mod(sod,240000);
+  delt  = csvsod(1) - sod(1);
+  if delt > 7*3600 && delt < 17*3600; sod = sod + 12*3600; end
 % Convert the second of the day to matlab time
   dnum  = dt + sod/86400;
   
