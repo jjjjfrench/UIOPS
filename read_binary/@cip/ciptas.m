@@ -7,7 +7,7 @@ function [timestamp,tas, date] = ciptas(cipdir, csvfiles)
 %
 % timestamp - the matlab time of each record
 % tas       - the true airspeed from each record
-%
+% date      - the date of each record
 
 sod = [];
 tas = [];
@@ -37,7 +37,7 @@ for ii = 1:length(csvfiles)
   fclose(fid);
 
 % Get time and tas
-  sod = [sod csv(1,:)];
+  sod = [sod csv(1,:)]; 
   tas = [tas csv(tascol,:)];
 end
 
@@ -50,6 +50,6 @@ darr(4:6) = 0;
 date = datenum(darr);
 if hh==0 && sod(1) > 86400
   fprintf('Deleting a day from the time stamps, sod(1)=%f\n',sod(1));
-  sod = sod - 86400;
+  sod = sod - 86400.;
 end
-timestamp = date + sod/86400;
+timestamp = date + sod/86400.;

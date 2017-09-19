@@ -3,8 +3,9 @@ function cip_obj_to_netcdf(obj, outfile)
 
 
 % Read the CIP csv data
-[csvsod,csvtas, dt] = obj.ciptas(obj.cipdir, obj.csvfile);
-
+[timestamp,csvtas, dt] = obj.ciptas(obj.cipdir, obj.csvfile);
+timestamp = timestamp - datenum(dt); %Get just datenum format of corresponding sod referenced from first day
+csvsod = timestamp*86400.; %Convert to seconds from date number format
 
 
 % The probe ID for the CIP is set to C5 because xpms2d has a particular
@@ -32,10 +33,10 @@ f = netcdf.create(outfile, 'clobber');
     
     varid8 = netcdf.defVar(f,'data','double',[dimid1 dimid2 dimid0]);
     netcdf.endDef(f)
-date_str = datestr(dt, 'MM-DD-YYYY')      
-year = str2num(['20',date_str(7:8)]);
-month = str2num(date_str(1:2));
-day = str2num(date_str(4:5));
+date_vec = datevec(dt);      
+year = date_vec(1);
+month = date_vec(2);
+day = date_vec(3);
 % Open and read each file of unpacked cip images
 index = 1;
 
@@ -51,13 +52,19 @@ for ii = 1:length(obj.cipfile)
   disp('Writing to the netCDF file');
 
 % CIP image data are on a 12 hour clock
+% CSV sod have been corrected already
   delt  = csvsod(1) - sod(1);
-  if delt > 7*3600 && delt < 17*3600; sod = sod + 12*3600; end
-% Convert the second of the day to matlab time
+  if delt > 7*3600 && delt < 17*3600 
+      sod = sod + 12*3600.; 
+  end
+% Convert the second of the day to matlab date number format
   dnum  = dt + sod/86400;
   
 % Interpolate the true airspeeds from the CSV files for each particle
   tas   = interp1(csvsod,csvtas,sod);
+  
+% Roll back HHMMSS if a flight crosses midnight  
+  sod(sod>=240000) = sod(sod>=240000) - 240000;
   
 % Construct 4096 byte buffer (512 pixels)
   while(particle_index < length(ns))
