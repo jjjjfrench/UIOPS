@@ -8,7 +8,7 @@ function raw_cip_to_cdf(cipdatapath,outdatapath,outfilename)
 %example file paths 
 %cipdatapath = '/kingair_data/pacmice16/cip/20160818/20160818143905/'
 %outdatapath = '/kingair_data/pacmice16/cip/20160818/cip_20160818'
-%outfilename = '20160818_cip.cdf'
+%outfilename = 'DIMG.20160818.cip.cdf'
 p = path;
 cdir = pwd;
 path(p,[cdir,'/@cip']);

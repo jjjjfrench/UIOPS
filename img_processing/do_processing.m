@@ -82,9 +82,7 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
             ciptime = basefilename(cipslash(1)+1:cipslash(2)-1); %Grabs the date from the directory name
             path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
             fprintf(logid,'raw_cip_to_cdf: %s\r\n',datestr(now));
-            raw_cip_to_cdf(basefilename,[cipdir,'cip_',ciptime],[ciptime,'.cip.cdf']);
-            cip_dimg = [cipdir,'cip_',ciptime,'/',ciptime,'.cip.cdf'];
-            system(['mv ',cip_dimg,' ',cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf']);
+            raw_cip_to_cdf(basefilename,[cipdir,'cip_',ciptime],['DIMG.',ciptime,'.cip.cdf']);
             cip_dimg = [cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf'];
             
             path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
