@@ -9,18 +9,18 @@ switch project
         fCDP = ['/kingair_data/snowie17/processed/20',date,'.c1.nc'];
         f2DS_H = ['/kingair_data/snowie17/2DS/20',date,'/SD.cat.DIMG.base',date,'.2DS.H.proc.cdf'];
         f2DS_V = ['/kingair_data/snowie17/2DS/20',date,'/SD.cat.DIMG.base',date,'.2DS.V.proc.cdf'];
-        fCIP = ['/kingair_data/snowie17/cip/20',date,'/cip_20',date,'/SD.cat.DIMG.20',date,'_cip.proc.cdf'];
+        fCIP = ['/kingair_data/snowie17/cip/20',date,'/cip_20',date,'/SD.cat.DIMG.20',date,'.cip.proc.cdf'];
         f2DP = ['/kingair_data/snowie17/2DP/20',date,'/SD.DIMG.20',date,'.2d.2dp.proc.cdf'];
         f2DC = ['/kingair_data/snowie17/2CP/20',date,'/SD.DIMG.20',date,'.2d.2dc.proc.cdf'];
         fout = ['/kingair_data/snowie17/2DS/20',date,'/20',date,'.SD.cdf'];
     otherwise
-        fCDP = '/kingair_data/snowie17/processed/20170119b.c1.nc';
-        f2DS_H = '/kingair_data/snowie17/2DS/20170119_2/SD.cat.DIMG.base170119.2DS.H.proc.cdf';
-        f2DS_V = '/kingair_data/snowie17/2DS/20170119_2/SD.cat.DIMG.base170119.H.proc.cdf';
-        fCIP = '/kingair_data/snowie17/cip/20170119b/cip_20170119b/SD.cat.DIMG.20170119b_cip.proc.cdf';
-        f2DP = '/kingair_data/snowie17/2DP/20170119_2/SD.DIMG.20170119b.2d.2dp.proc.cdf';
-        f2DC = '/kingair_data/snowie17/2CP/20170119_2/SD.DIMG.20170119b.2d.2dc.proc.cdf';
-        fout = '/kingair_data/snowie17/2DS/20170119_2/20170119b.SD.cdf';
+        fCDP = '/kingair_data/snowie17/processed/20170304.c1.nc';
+        f2DS_H = '/kingair_data/snowie17/2DS/20170304/SD.cat.DIMG.base170304.2DS.H.proc.cdf - laser';
+        f2DS_V = '/kingair_data/snowie17/2DS/20170304/SD.cat.DIMG.base170304.2DS.V.proc.cdf - laser';
+        fCIP = '/kingair_data/snowie17/cip/20170304/cip_20170304/SD.cat.DIMG.20170304.cip.proc.cdf';
+        f2DP = '/kingair_data/snowie17/2DP/20170304/SD.DIMG.20170304.2d.2dp.proc.cdf';
+        f2DC = '/kingair_data/snowie17/2DP/20170304/SD.DIMG.20170304.2d.2dc.proc.cdf';
+        fout = '/kingair_data/snowie17/2DS/20170304/20170304.SD.cdf';
 end
 nc_CDP = netcdf.open(fCDP);
 tas = netcdf.getVar(nc_CDP, netcdf.inqVarID(nc_CDP, 'tas'));

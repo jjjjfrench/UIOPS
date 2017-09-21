@@ -29,11 +29,15 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
     switch pType
         case '2DC'
 %pms
-            path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
-            fprintf(logid,'read_binary: %s\r\n',datestr(now));
-            read_binary_PMS(basefilename,'1');
+            if ~exist([basefilename(1:slashpos),'DIMG.',basefilename(slashpos+1:end),'.2dc.cdf'],'file')
+                path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
+                fprintf(logid,'read_binary: %s\r\n',datestr(now));
+                read_binary_PMS(basefilename,'1');
+                
+                path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
+            end
             
-            path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
+           
             fprintf(logid,'imgProc: %s\r\n',datestr(now));
             files = dir([filedir,'DIMG.*.2dc.cdf']);
             for i=1:length(files)
@@ -42,16 +46,20 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
                 if i > 1
                     mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
                 else
-                    system(['mv ',files(i).name(1:perpos-1),'_1.proc',files(i).name(perpos:end),' ',files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)]);
+                    system(['mv ',filedir,files(i).name(1:perpos-1),'_1.proc',files(i).name(perpos:end),' ',filedir,files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)])
                 end
             end
         case '2DP'
 %pms
-            path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
-            fprintf(logid,'read_binary: %s\r\n',datestr(now));
-            read_binary_PMS(basefilename,'1');
+            if ~exist([basefilename(1:slashpos),'DIMG.',basefilename(slashpos+1:end),'.2dp.cdf'],'file')
+                path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
+                fprintf(logid,'read_binary: %s\r\n',datestr(now));
+                read_binary_PMS(basefilename,'1');
+                
+                path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
+            end
+                
             
-            path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
             fprintf(logid,'imgProc: %s\r\n',datestr(now));
             files = dir([filedir,'DIMG.*.2dp.cdf']);
             for i=1:length(files)
@@ -60,7 +68,7 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
                 if i > 1
                     mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
                 else
-                    system(['mv ',filedir,files(i).name(1:perpos-1),'_1.proc ',files(i).name(perpos:end),' ',filedir,files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)]);
+                    system(['mv ',filedir,files(i).name(1:perpos-1),'_1.proc',files(i).name(perpos:end),' ',filedir,files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)])
                 end
             end
         case 'CIP'
@@ -75,8 +83,8 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
             path(p,[pdir,'/read_binary']); %add read_binary subdirectory to search path
             fprintf(logid,'raw_cip_to_cdf: %s\r\n',datestr(now));
             raw_cip_to_cdf(basefilename,[cipdir,'cip_',ciptime],[ciptime,'.cip.cdf']);
-            cip_dimg = [cipdir,'cip_',ciptime,'/',ciptime,'_cip.cdf'];
-            system(['move ',cip_dimg,' ',cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf']);
+            cip_dimg = [cipdir,'cip_',ciptime,'/',ciptime,'.cip.cdf'];
+            system(['mv ',cip_dimg,' ',cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf']);
             cip_dimg = [cipdir,'cip_',ciptime,'/','DIMG.',ciptime,'.cip.cdf'];
             
             path(p,[pdir,'/img_processing']); %add img_processing subdirectory to search path
