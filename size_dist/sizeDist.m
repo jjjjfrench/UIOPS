@@ -84,6 +84,8 @@ timehhmmss(find(diff(timehhmmss)<0)+1:end)=...
 tas_time = floor(timehhmmss/10000)*3600+floor(mod(timehhmmss,10000)/100)*60+floor(mod(timehhmmss,100));
 % averaging_time = 1;
 
+timehhmmss = mod(timehhmmss, 240000);
+
 %% Project-, probe-, and date-specific information
 switch projectname
     case 'PECAN'
@@ -486,7 +488,7 @@ loopedAutoRej = [];
 %% Load particles for each second, and then process them
 % Only for large files cannot be processed at once
 [~, NumofPart] = netcdf.inqDim(f,0); % Check the number of particles
-
+dateall = netcdf.getVar(f,netcdf.inqVarID(f,'Date'));
 if 1==probetype
    image_time_hhmmssall = netcdf.getVar(f,netcdf.inqVarID(f,'particle_time'));
 elseif 2==probetype
@@ -521,7 +523,7 @@ end
 % Find all indices (true/1) with a unique time in hhmmss - in other words, we're getting the particle index where each new
 % one-second period starts
 startindex=[true;(diff(hhmmss2insec(image_time_hhmmssall))>0)]; % & diff(hhmmss2insec(image_time_hhmmssall))<5)]; % Simplified (tested/changed by DS)
-
+startdate=dateall(startindex);
 % startindex=int8(image_time_hhmmssall*0);
 % for i=1:length(timehhmmss)
 %    indexofFirstTime =  find(image_time_hhmmssall==timehhmmss(i),1);
@@ -591,7 +593,7 @@ fprintf('Beginning size distribution calculations and sorting %s\n\n',datestr(no
 
 for i=1:length(tas) 
     
-    if (int32(timehhmmss(i))>=int32(starttime(jjj)))
+    if ( int32(mod(timehhmmss(end)-timehhmmss(i),240000))<=int32(mod(timehhmmss(end)-starttime(jjj),240000)) )
         
         % Attempt to sync TAS file time (timehhmmss) with particle time
 %         if (int32(timehhmmss(i))>int32(starttime(jjj))) %% Deprecated
@@ -599,7 +601,7 @@ for i=1:length(tas)
 %         Rearranged order to successfully break out of the loop at the
 %         right index in the event that the tas array covers more time than
 %         the autoanalysis files
-        while (int32(timehhmmss(i))>int32(starttime(jjj))) % Added by Joe Finlon - 03/03/17
+        while ( (int32(timehhmmss(i))>int32(starttime(jjj))) && (int32(starttime(jjj))>int32(timehhmmss(end)))) % Added by Joe Finlon - 03/03/17
             if (jjj>=length(start_all))
                 break;
             end
@@ -613,6 +615,7 @@ for i=1:length(tas)
         
         % Load autoanalysis parameters. Start at beginning (start) of some one-second period and load the values for every
         % particle in that period (count)
+        cdate = netcdf.getVar(f,netcdf.inqVarID(f,'Date'),start,count);
         msec = netcdf.getVar(f,netcdf.inqVarID(f,'particle_millisec'),start,count);
         microsec = netcdf.getVar(f,netcdf.inqVarID(f,'particle_microsec'),start,count);
         auto_reject = netcdf.getVar(f,netcdf.inqVarID(f,'image_auto_reject'),start,count);
@@ -1075,7 +1078,8 @@ for i=1:length(tas)
         numBadparticles(i)=length(bad_particles);
 %         disp([int32(timehhmmss(i)), sum(good_particles),length(good_particles),length(good_particles)-sum(good_particles)]);
 
-        image_time = hhmmss2insec(image_time_hhmmss);
+       % Edited to handle day rollovers - Adam Majewski 9/21/2017
+        image_time = hhmmss2insec(image_time_hhmmss)  + ( datenum(num2str(cdate),'yyyymmdd') - datenum(ddate,'yyyymmdd') ).*86400;
 
         % Good (accepted) particles
         good_image_times = image_time(good_particles);
