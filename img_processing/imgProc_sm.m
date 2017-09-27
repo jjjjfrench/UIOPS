@@ -265,11 +265,19 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
             
                if probetype==0
                    if start+1 > (j-1)  % Remove Corrupted Data
-                    break;
+                        start = j + 2;
+                        j = j + 1;
+                        continue;
                    end
                else
                    if start > (j-1)  % Remove Corrupted Data
-                    break;
+                        if probetype==3
+                            start = j + 3;
+                        else
+                            start = j + 2;
+                        end
+                        j = j + 1;
+                        continue;
                    end
                end 
                 
@@ -343,7 +351,7 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                         start_hour = handles.hour;
                         start_minute = handles.minute;
                         start_second = handles.second;
-                        start_msec = handles.millisec*10;
+                        start_msec = handles.millisec;
                         % First, we get the hours....
                         start_msec = start_msec;
                         start_microsec = 0;
