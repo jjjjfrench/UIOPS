@@ -352,19 +352,13 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                         start_minute = handles.minute;
                         start_second = handles.second;
                         start_msec = handles.millisec;
-                        % First, we get the hours....
-                        start_msec = start_msec;
                         start_microsec = 0;
-                        time_offset_hr = 0;
-                        time_offset_mn = 0;
-                        time_offset_sec = 0;
-                        time_offset_ms = 0;
 
                         part_hour(kk) = start_hour;
                         part_min(kk) = start_minute;
                         part_sec(kk) = start_second;
                         part_mil(kk) = start_msec;
-                        part_micro(kk) = 0;
+                        part_micro(kk) = start_microsec;
                         
                         particle_partNum(kk) = 1;
                     else
@@ -378,6 +372,8 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                         
                         particle_partNum(kk) = particle_partNum(kk-1) + 1;
                     end
+                    part_mil(part_micro >= 1000) = part_mil(part_micro >= 1000) + 1;
+                    part_micro(part_micro >= 1000) = part_micro(part_micro >= 1000) - 1000;
                     
                     part_sec(part_mil >= 1000) = part_sec(part_mil >= 1000) + 1;
                     part_mil(part_mil >= 1000) = part_mil(part_mil >= 1000) - 1000;
