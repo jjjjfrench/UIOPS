@@ -26,7 +26,7 @@ for i = 1:filenums
 
     % Assign the number of CPUs for this program
     if (nChucks > 1)
-        parpool(8)% Assign n CPUs to process
+        parpool(nChucks)% Assign n CPUs to process
     end
 
     % Choose the start and end of chucks to be processed. Remember you can
