@@ -623,7 +623,9 @@ for i=1:length(tas)
         im_length = netcdf.getVar(f,netcdf.inqVarID(f,'image_length'),start,count);
         area = netcdf.getVar(f,netcdf.inqVarID(f,'image_area'),start,count);
         perimeter = netcdf.getVar(f,netcdf.inqVarID(f,'image_perimeter'),start,count);
-%         rec_nums = netcdf.getVar(f,netcdf.inqVarID(f,'parent_rec_num'),start,count); %Used in legacy interarrival time analysis
+        if probetype == 0
+            rec_nums = netcdf.getVar(f,netcdf.inqVarID(f,'parent_rec_num'),start,count);
+        end
 %         top_edges = netcdf.getVar(f,netcdf.inqVarID(f,'image_max_top_edge_touching'),start,count); %Unused
 %         bot_edges = netcdf.getVar(f,netcdf.inqVarID(f,'image_max_bottom_edge_touching'),start,count); %Unused
 %         longest_y = netcdf.getVar(f,netcdf.inqVarID(f,'image_longest_y'),start,count); %Unused
@@ -775,6 +777,12 @@ for i=1:length(tas)
         end
         %}
         time_interval72(i) = sum(int_arr(DMT_DOF_SPEC_OVERLOAD~=0));
+        
+        %2DP overload handling - Adam Majewski 9/28/17
+        if probetype == 0
+           rec_start = diff(rec_nums)>0;
+           time_interval72(i) = sum(DMT_DOF_SPEC_OVERLOAD(rec_start))/1000.; %total overload time for the one second period in seconds
+        end
         
         % Simplified by DS - Removed image_time_hhmmssnew as it was defined by and never changed from image_time_hhmmss
         image_time_hhmmss = image_time_hhmmssall(start+1:start+count);
@@ -1536,7 +1544,7 @@ elseif probetype==1
     time_interval199=(TotalPC1./TotalPC2)';
 
 elseif 0==probetype
-    time_interval200=1-0.*time_interval72';
+    time_interval200=1-time_interval72';
 end
 
 % Experimental - Use with care!
