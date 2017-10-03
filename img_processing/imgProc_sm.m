@@ -230,7 +230,9 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
     handles.minute   = netcdf.getVar(handles.f,netcdf.inqVarID(handles.f,'minute'  ),i-1,1);
     handles.second   = netcdf.getVar(handles.f,netcdf.inqVarID(handles.f,'second'  ),i-1,1);
     handles.millisec = netcdf.getVar(handles.f,netcdf.inqVarID(handles.f,'millisec'),i-1,1);
-  
+    if probetype == 0
+        handles.wkday    = netcdf.getVar(handles.f,netcdf.inqVarID(handles.f,'wkday'),i-1,1);
+    end
     if mod(i,100) == 0
         [num2str(i),'/',num2str(handles.img_count), ', ',datestr(now)]
     end
@@ -342,7 +344,7 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                     part_time = part_time/tas2d*handles.diodesize/(10^3);                    
                     time_in_seconds(kk) = part_time;
                     particle_sliceCount(kk) = size(ind_matrix,1); %Needs to be changed
-                    particle_DOF(kk) = 0;
+                    particle_DOF(kk) = handles.wkday;
                     
                     images.int_arrival(kk) = part_time;
                     
@@ -436,7 +438,10 @@ for i=((n-1)*nEvery+1):min(n*nEvery,handles.img_count)
                      %slice[63:56] 8-bit true airspeed (in meters per second)
                      %slice[55:0] 56-bit 0's
                       
-                     part_hour(kk) = data(header_loc,60)*8+data(header_loc,59)*2+bitshift(data(header_loc,58),-1)+12;
+                     part_hour(kk) = data(header_loc,60)*8+data(header_loc,59)*2+bitshift(data(header_loc,58),-1);
+                     if mod((part_hour(kk) - handles.hour),24) >= 11
+                        part_hour(kk) = mod(part_hour(kk)+12,12);
+                     end
                      part_min(kk) = bitget(data(header_loc,58),1)*32+data(header_loc,57)*8+data(header_loc,56)*2+bitshift(data(header_loc,55),-1);
                      part_sec(kk) = bitget(data(header_loc,55),1)*32+data(header_loc,54)*8+data(header_loc,53)*2+bitshift(data(header_loc,52),-1);
                      part_mil(kk) = bitget(data(header_loc,52),1)*512+data(header_loc,51)*128+data(header_loc,50)*32+data(header_loc,49)*8+data(header_loc,48)*2+bitshift(data(header_loc,47),-1);
