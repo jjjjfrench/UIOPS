@@ -543,8 +543,8 @@ starttime=image_time_hhmmssall(startindex); % Simplified (tested/changed by DS)
 start_all=find(startindex)-1; % Simplified (tested/changed by DS)
 
 % Sort the particle one-second time array in the event it is out of order and redefine the start_all variable as needed
-[starttime,newindexofsort]=sort(starttime);
-start_all=start_all(newindexofsort);
+%[starttime,newindexofsort]=sort(starttime);
+%start_all=start_all(newindexofsort);
 
 %% Remove times when there is no tas data available
 % nNoTAS=0;
@@ -566,8 +566,8 @@ start_all=start_all(newindexofsort);
 %% Remove any duplicate times and determine how many particles are present in each one-second period
 fprintf('Number of duplicate times = %d\n\n',(length(starttime)-length(unique(starttime))));
 
-[starttime, ia, ~] = unique(starttime,'first');
-start_all = start_all(ia);
+%[starttime, ia, ~] = unique(starttime,'first');
+%start_all = start_all(ia);
 count_all= [diff(start_all); NumofPart-start_all(end)];
 count_all(count_all<0)=1;
 
