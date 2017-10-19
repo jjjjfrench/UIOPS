@@ -32,11 +32,16 @@ for i = 1:filenums
     % Choose the start and end of chucks to be processed. Remember you can
     % split the chucks into different programs to process, since matlabpool can
     % only use 8 CPUs at once
-    for iii=1:nChucks % 33:40  % iiith chuck will be processed 
-        perpos = find(infilename == '.',1,'last');
-        outfilename = [infilename(1:perpos-1),'_',num2str(iii),'.proc.cdf'];
-        %outfile = ['./HVPSFAST/proc2.TEST_debug.HVPS' num2str(numb(iii)) '.cdf'];			% Output image autoanalysis file
-        imgProc_sm(infilename,outfilename, pType, iii, nEvery, projectname, threshold);  % See imgprocdm documentation for more information
+    if (nChucks > 1)
+        parfor iii=1:nChucks % 33:40  % iiith chuck will be processed 
+            perpos = find(infilename == '.',1,'last');
+            outfilename = [infilename(1:perpos-1),'_',num2str(iii),'.proc.cdf'];
+            %outfile = ['./HVPSFAST/proc2.TEST_debug.HVPS' num2str(numb(iii)) '.cdf'];			% Output image autoanalysis file
+            imgProc_sm(infilename,outfilename, pType, iii, nEvery, projectname, threshold);  % See imgprocdm documentation for more information
+        end
+    else
+        outfilename = [infilename(1:perpos-1),'.proc.cdf'];
+        imgProc_sm(infilename,outfilename, pType, iii, nEvery, projectname, threshold);
     end
 
     if (nChucks > 1)

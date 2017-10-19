@@ -45,8 +45,6 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
                 runImgProc([filedir,files(i).name],pType,nEvery,project,threshold);
                 if i > 1
                     mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
-                else
-                    system(['mv ',filedir,files(i).name(1:perpos-1),'_1.proc',files(i).name(perpos:end),' ',filedir,files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)])
                 end
             end
         case '2DP'
@@ -67,8 +65,6 @@ function do_processing(basefilename,pType,nEvery,project,threshold)
                 runImgProc([filedir,files(i).name],pType,nEvery,project,threshold);
                 if i > 1
                     mergeNetcdf([filedir,files(i).name(1:perpos-1),'*.proc',files(i).name(perpos:end)]);
-                else
-                    system(['mv ',filedir,files(i).name(1:perpos-1),'_1.proc',files(i).name(perpos:end),' ',filedir,files(i).name(1:perpos-1),'.proc',files(i).name(perpos:end)])
                 end
             end
         case 'CIP'
