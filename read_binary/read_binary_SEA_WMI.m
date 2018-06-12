@@ -1,4 +1,4 @@
-function read_binary_SEA(infilename,outfilename)
+function read_binary_SEA_WMI(infilename,outfilename)
 %% Function to decompress SEA raw files 
 % Need to double check the file format and code for each probes
 % This only works for MC3E filed campaign
